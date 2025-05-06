@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pkl
+*.db
+.env
+venv/
+.env/
+trained_model/
+data/
+*.log

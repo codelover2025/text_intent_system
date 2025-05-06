@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Intent Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 col-sm-12">
+        <div class="card shadow-lg">
+          <div class="card-body">
+            <h3 class="card-title text-center mb-4">Intent Prediction</h3>
+
+            <div class="mb-3">
+              <label for="key" class="form-label">API Key</label>
+              <input type="text" class="form-control" id="key" placeholder="Enter your API key">
+            </div>
+
+            <div class="mb-3">
+              <label for="guid" class="form-label">GUID</label>
+              <input type="text" class="form-control" id="guid" placeholder="Enter a unique identifier">
+            </div>
+
+            <div class="mb-3">
+              <label for="text" class="form-label">Text</label>
+              <textarea class="form-control" id="text" rows="4" placeholder="Enter the text to classify..."></textarea>
+            </div>
+
+            <div class="d-grid">
+              <button class="btn btn-primary" onclick="sendRequest()">Predict Intent</button>
+            </div>
+
+            <div class="mt-4 alert alert-info d-none" id="resultBox">
+              <strong>Result:</strong> <span id="result"></span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS & Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    async function sendRequest() {
+      const key = document.getElementById("key").value.trim();
+      const guid = document.getElementById("guid").value.trim();
+      const text = document.getElementById("text").value.trim();
+      const resultBox = document.getElementById("resultBox");
+      const resultText = document.getElementById("result");
+
+      resultBox.classList.add("d-none");
+
+      if (!key || !guid || !text) {
+        resultBox.classList.remove("alert-info");
+        resultBox.classList.add("alert-danger");
+        resultText.innerText = "All fields are required.";
+        resultBox.classList.remove("d-none");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key, guid, text })
+        });
+
+        const data = await res.json();
+        resultBox.classList.remove("d-none");
+
+        if (res.ok) {
+          resultBox.classList.remove("alert-danger");
+          resultBox.classList.add("alert-info");
+          resultText.innerText = data.intent;
+        } else {
+          resultBox.classList.remove("alert-info");
+          resultBox.classList.add("alert-danger");
+          resultText.innerText = data.error || "Something went wrong.";
+        }
+
+      } catch (err) {
+        resultBox.classList.remove("alert-info");
+        resultBox.classList.add("alert-danger");
+        resultText.innerText = "Network error or server not responding.";
+        resultBox.classList.remove("d-none");
+      }
+    }
+  </script>
+
+</body>
+</html>
