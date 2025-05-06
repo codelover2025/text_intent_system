@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory
 from api import create_app
-
+import os
 app = create_app()  # Initialize the Flask app with the Blueprint
 
 @app.route('/')
